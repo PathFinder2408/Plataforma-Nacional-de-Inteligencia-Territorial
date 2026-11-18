@@ -1,8 +1,18 @@
-import type { ParcelaFicha, ParcelaFichaCompleta, ProcedenciaDato } from "../../types/parcela";
+import type {
+  ParcelaFicha,
+  ParcelaFichaCompleta,
+  PerfilInversion,
+  ProcedenciaDato,
+} from "../../types/parcela";
 
 interface ParcelaFichaPanelProps {
   ficha: ParcelaFicha | null;
   fichaCompleta: ParcelaFichaCompleta | null;
+  perfil: PerfilInversion;
+  onChangePerfil: (perfil: PerfilInversion) => void;
+  onAddComparador: (completa: ParcelaFichaCompleta) => void;
+  onToggleGuardar: (parcela: ParcelaFicha) => void;
+  isGuardada: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -19,6 +29,11 @@ function ProvenanceMeta({ data }: { data: ProcedenciaDato }) {
 export function ParcelaFichaPanel({
   ficha,
   fichaCompleta,
+  perfil,
+  onChangePerfil,
+  onAddComparador,
+  onToggleGuardar,
+  isGuardada,
   loading,
   error,
 }: ParcelaFichaPanelProps) {
@@ -84,8 +99,90 @@ export function ParcelaFichaPanel({
             <p className="meta-line">Licencia: {ficha.procedencia.licencia}</p>
           </section>
 
+          <div className="ficha-actions">
+            <button
+              type="button"
+              onClick={() => onToggleGuardar(ficha)}
+              className="btn-secondary"
+            >
+              {isGuardada ? "Guardada ✓" : "Guardar"}
+            </button>
+            {fichaCompleta && (
+              <button
+                type="button"
+                onClick={() => onAddComparador(fichaCompleta)}
+                className="btn-primary"
+              >
+                + Comparar
+              </button>
+            )}
+          </div>
+
           {fichaCompleta && (
             <>
+              <section className="detail-section">
+                <div className="section-head">
+                  <h3>Puntaje explicable</h3>
+                  <select
+                    aria-label="Perfil de evaluación"
+                    value={perfil}
+                    onChange={(e) => onChangePerfil(e.target.value as PerfilInversion)}
+                    className="perfil-select"
+                  >
+                    <option value="inversionista">Inversionista</option>
+                    <option value="desarrollador">Desarrollador</option>
+                    <option value="fiscal">Terreno fiscal</option>
+                  </select>
+                </div>
+                <div className="score-banner">
+                  <strong>{fichaCompleta.puntaje_oportunidad.puntaje_total}</strong>
+                  <span>/ 100</span>
+                </div>
+                <ul className="factor-list">
+                  {fichaCompleta.puntaje_oportunidad.factores.map((fac) => (
+                    <li key={`${fac.categoria}-${fac.etiqueta}`} className="factor-item">
+                      <span className={fac.delta >= 0 ? "delta-pos" : "delta-neg"}>
+                        {fac.delta >= 0 ? `+${fac.delta}` : fac.delta}
+                      </span>
+                      <div>
+                        <strong>{fac.etiqueta}</strong>
+                        <p className="meta-line">{fac.detalle}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section className="detail-section">
+                <h3>Mercado H3 y F2890</h3>
+                {fichaCompleta.mercado.celda_h3 ? (
+                  <div className="subcard">
+                    <p>
+                      <strong>H3 r{fichaCompleta.mercado.celda_h3.resolucion}:</strong> Mediana{" "}
+                      <strong>
+                        $
+                        {fichaCompleta.mercado.celda_h3.precio_m2_mediana_clp?.toLocaleString(
+                          "es-CL"
+                        ) ?? "—"}
+                        /m²
+                      </strong>{" "}
+                      ({fichaCompleta.mercado.celda_h3.cantidad_transacciones} tx)
+                    </p>
+                    <p className="meta-line">
+                      Tendencia:{" "}
+                      {fichaCompleta.mercado.celda_h3.tendencia_pct !== null
+                        ? `${fichaCompleta.mercado.celda_h3.tendencia_pct > 0 ? "+" : ""}${fichaCompleta.mercado.celda_h3.tendencia_pct}%`
+                        : "—"}{" "}
+                      · Ratio precio/avalúo:{" "}
+                      {fichaCompleta.mercado.celda_h3.ratio_precio_avaluo ?? "—"}
+                    </p>
+                    <ProvenanceMeta data={fichaCompleta.mercado.celda_h3.procedencia} />
+                  </div>
+                ) : (
+                  <p className="status-msg">Sin transacciones H3 registradas en esta celda.</p>
+                )}
+              </section>
+
               <section className="detail-section">
                 <div className="section-head">
                   <h3>Estatus fiscal</h3>

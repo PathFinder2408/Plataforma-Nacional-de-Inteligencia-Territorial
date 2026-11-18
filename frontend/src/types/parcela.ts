@@ -41,6 +41,44 @@ export interface LayerVisibility {
   fiscal: boolean;
   normativa: boolean;
   riesgo: boolean;
+  h3: boolean;
+}
+
+export type PerfilInversion = "inversionista" | "desarrollador" | "fiscal";
+
+export interface FactorPuntaje {
+  categoria: string;
+  etiqueta: string;
+  delta: number;
+  detalle: string;
+  confianza: string;
+}
+
+export interface PuntajeOportunidad {
+  perfil: PerfilInversion;
+  puntaje_total: number;
+  puntaje_base: number;
+  metodologia: string;
+  factores: FactorPuntaje[];
+}
+
+export interface MercadoCeldaH3 {
+  h3_index: string;
+  resolucion: number;
+  cantidad_transacciones: number;
+  precio_m2_mediana_clp: number | null;
+  precio_m2_promedio_clp: number | null;
+  ratio_precio_avaluo: number | null;
+  tendencia_pct: number | null;
+  procedencia: ProcedenciaDato;
+}
+
+export interface TransaccionResumen {
+  codigo_f2890: string;
+  fecha: string | null;
+  monto_clp: number;
+  precio_m2_clp: number | null;
+  procedencia: ProcedenciaDato;
 }
 
 export interface CabidaReferencial {
@@ -88,5 +126,10 @@ export interface ParcelaFichaCompleta {
     exposicion_aspecto: string;
     procedencia: ProcedenciaDato | null;
   } | null;
+  mercado: {
+    transacciones: TransaccionResumen[];
+    celda_h3: MercadoCeldaH3 | null;
+  };
+  puntaje_oportunidad: PuntajeOportunidad;
   descargo_general: string;
 }

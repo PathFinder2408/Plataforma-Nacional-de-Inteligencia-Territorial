@@ -499,3 +499,58 @@ def validate_market_valuation() -> dict[str, Any]:
         {"monto_real_clp": float(r[0]), "monto_estimado_clp": float(r[1])} for r in rows
     ]
     return evaluate_valuation_error(observaciones)
+
+
+def filter_parcelas(
+    *,
+    min_sup: float | None = None,
+    max_sup: float | None = None,
+    max_pendiente: float | None = None,
+    excluir_riesgos: bool = False,
+    solo_fiscales: bool = False,
+    destino: str | None = None,
+    limit: int = 25,
+) -> list[dict[str, Any]]:
+    """Filtra parcelas vigentes por superficie, pendiente, destino, riesgos y estatus fiscal."""
+    clauses = ["p.vigente_hasta IS NULL"]
+    params: list[Any] = []
+
+    if min_sup is not None:
+        clauses.append("p.superficie_m2 >= %s")
+        params.append(min_sup)
+    if max_sup is not None:
+        clauses.append("p.superficie_m2 <= %s")
+        params.append(max_sup)
+    if max_pendiente is not None:
+        clauses.append("p.pendiente_media_pct IS NOT NULL AND p.pendiente_media_pct <= %s")
+        params.append(max_pendiente)
+    if destino:
+        clauses.append("p.destino ILIKE %s")
+        params.append(f"%{destino.strip()}%")
+    if excluir_riesgos:
+        clauses.append(
+            "NOT EXISTS (SELECT 1 FROM capa_riesgo cr WHERE ST_Intersects(p.geom, cr.geom))"
+        )
+    if solo_fiscales:
+        clauses.append(
+            """
+            EXISTS (
+                SELECT 1 FROM terreno_fiscal tf
+                WHERE tf.vigente_hasta IS NULL AND ST_Intersects(p.geom, tf.geom)
+            )
+            """
+        )
+
+    safe_limit = max(1, min(limit, 50))
+    params.append(safe_limit)
+
+    sql = (
+        BASE_PARCELA_SELECT
+        + " WHERE "
+        + " AND ".join(clauses)
+        + " ORDER BY p.superficie_m2 DESC LIMIT %s;"
+    )
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params)
+        rows = cursor.fetchall()
+    return [_serialize_parcela_row(r) for r in rows]

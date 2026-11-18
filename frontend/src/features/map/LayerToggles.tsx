@@ -13,6 +13,7 @@ const LAYER_ITEMS: Array<{
   { key: "fiscal", label: "Terrenos fiscales", colorClass: "swatch-fiscal" },
   { key: "normativa", label: "Normativa urbana", colorClass: "swatch-normativa" },
   { key: "riesgo", label: "Riesgos naturales", colorClass: "swatch-riesgo" },
+  { key: "h3", label: "Mercado H3", colorClass: "swatch-h3" },
 ];
 
 export function LayerToggles({ layers, onToggle }: LayerTogglesProps) {

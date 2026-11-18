@@ -2,6 +2,7 @@ from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
 from .services import (
+    filter_parcelas,
     get_parcela_ficha_completa,
     lookup_parcela_by_point,
     search_parcelas,
@@ -74,3 +75,31 @@ def parcela_puntaje_view(request: HttpRequest, parcela_id: int) -> JsonResponse:
 def mercado_validacion_view(_request: HttpRequest) -> JsonResponse:
     """Devuelve métricas MAE/MAPE de validación contra transacciones F2890."""
     return JsonResponse(validate_market_valuation())
+
+
+@require_GET
+def filtrar_parcelas_view(request: HttpRequest) -> JsonResponse:
+    """Filtra parcelas vigentes por criterios espaciales y de aptitud."""
+    try:
+        min_sup = float(request.GET["min_sup"]) if request.GET.get("min_sup") else None
+        max_sup = float(request.GET["max_sup"]) if request.GET.get("max_sup") else None
+        max_pend = (
+            float(request.GET["max_pendiente"]) if request.GET.get("max_pendiente") else None
+        )
+        excluir_riesgos = request.GET.get("excluir_riesgos", "").lower() in {"1", "true", "si"}
+        solo_fiscales = request.GET.get("solo_fiscales", "").lower() in {"1", "true", "si"}
+        destino = request.GET.get("destino") or None
+        limit = int(request.GET.get("limit", "25"))
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    resultados = filter_parcelas(
+        min_sup=min_sup,
+        max_sup=max_sup,
+        max_pendiente=max_pend,
+        excluir_riesgos=excluir_riesgos,
+        solo_fiscales=solo_fiscales,
+        destino=destino,
+        limit=limit,
+    )
+    return JsonResponse({"resultados": resultados})

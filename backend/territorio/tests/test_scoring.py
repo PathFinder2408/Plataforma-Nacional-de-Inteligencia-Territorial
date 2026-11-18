@@ -9,7 +9,11 @@ if not settings.configured:
     settings.configure(DEFAULT_CHARSET="utf-8", SECRET_KEY="test-only")
 
 from territorio.scoring import compute_opportunity_score, evaluate_valuation_error
-from territorio.services import get_parcela_ficha_completa, validate_market_valuation
+from territorio.services import (
+    filter_parcelas,
+    get_parcela_ficha_completa,
+    validate_market_valuation,
+)
 
 from etl.f2890 import run_f2890_etl
 from etl.layers import run_layers_etl
@@ -130,3 +134,10 @@ def test_scoring_and_valuation_error_postgis(transactional_db) -> None:
     assert validacion["muestras"] >= 5
     assert validacion["mape_pct"] is not None
     assert validacion["mape_pct"] < 100.0
+
+    sin_riesgos = filter_parcelas(excluir_riesgos=True)
+    assert any(p["rol"] == "00101-00001" for p in sin_riesgos)
+    assert all(p["rol"] != "00101-00002" for p in sin_riesgos)
+
+    fiscales = filter_parcelas(solo_fiscales=True)
+    assert any(p["rol"] == "00101-00003" for p in fiscales)
