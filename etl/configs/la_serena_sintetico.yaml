@@ -1,0 +1,23 @@
+input_path: "etl/fixtures/la_serena_sintetico.geojson"
+source_crs: "EPSG:32719"
+area_diff_threshold_pct: 10.0
+batch_size: 500
+default_vigente_desde: "2026-01-01"
+
+fuente:
+  nombre: "Catastro Sintético La Serena (Iteración 1)"
+  origen: "sintetico"
+  licencia: "CC0-1.0 (uso interno pruebas)"
+  fecha_corte: "2026-11-01"
+  confianza_defecto: "referencial"
+  version_etl: "1.0.0"
+
+columns:
+  rol: "rol_predial"
+  codigo_ine: "cod_comuna"
+  destino: "uso_destino"
+  serie: "serie_cat"
+  avaluo_fiscal: "avaluo_clp"
+  superficie_declarada: "sup_decl_m2"
+  vigente_desde: "vig_desde"
+  vigente_hasta: "vig_hasta"

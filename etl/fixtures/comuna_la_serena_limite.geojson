@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "name": "limites_comunales_piloto",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "codigo_ine": "04101",
+        "nombre": "La Serena",
+        "region_id": 4,
+        "fuente": "Límite referencial piloto",
+        "confianza": "referencial"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-71.29, -29.94],
+          [-71.21, -29.94],
+          [-71.21, -29.87],
+          [-71.29, -29.87],
+          [-71.29, -29.94]
+        ]]
+      }
+    }
+  ]
+}

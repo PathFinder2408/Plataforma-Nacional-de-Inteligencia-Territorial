@@ -1,0 +1,63 @@
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-territorio} -d ${POSTGRES_DB:-territorio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  martin:
+    image: ghcr.io/maplibre/martin:latest
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-territorio}:${POSTGRES_PASSWORD:-changeme_local_only}@postgis:5432/${POSTGRES_DB:-territorio}"
+    ports:
+      - "${MARTIN_PORT:-3001}:3000"
+    volumes:
+      - ./infra/martin/config.yaml:/config/martin.yaml:ro
+      - ./infra/pmtiles/out:/pmtiles:ro
+    command: ["--config", "/config/martin.yaml"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      postgis:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/.venv
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgis_data:

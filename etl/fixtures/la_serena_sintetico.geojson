@@ -1,0 +1,170 @@
+{
+  "type": "FeatureCollection",
+  "name": "la_serena_sintetico",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::32719" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00001",
+        "uso_destino": "Habitacional",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 45000000,
+        "sup_decl_m2": 10000.0,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282000.0, 6690000.0],
+          [282100.0, 6690000.0],
+          [282100.0, 6690100.0],
+          [282000.0, 6690100.0],
+          [282000.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00002",
+        "uso_destino": "Comercial",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 62000000,
+        "sup_decl_m2": 8000.0,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282200.0, 6690000.0],
+          [282300.0, 6690000.0],
+          [282300.0, 6690050.0],
+          [282200.0, 6690050.0],
+          [282200.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00003",
+        "uso_destino": "Agrícola",
+        "serie_cat": "agricola",
+        "avaluo_clp": 31000000,
+        "sup_decl_m2": null,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282400.0, 6690000.0],
+          [282500.0, 6690100.0],
+          [282500.0, 6690000.0],
+          [282400.0, 6690100.0],
+          [282400.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00004",
+        "uso_destino": "Habitacional",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 20000000,
+        "sup_decl_m2": 2500.0,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282600.0, 6690000.0],
+          [282650.0, 6690000.0],
+          [282650.0, 6690050.0],
+          [282600.0, 6690050.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00001",
+        "uso_destino": "Habitacional",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 45000000,
+        "sup_decl_m2": 10000.0,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282000.0, 6690000.0],
+          [282100.0, 6690000.0],
+          [282100.0, 6690100.0],
+          [282000.0, 6690100.0],
+          [282000.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "rol_predial": "00101-00001",
+        "uso_destino": "Habitacional",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 41000000,
+        "sup_decl_m2": 10000.0,
+        "vig_desde": "2025-01-01",
+        "vig_hasta": "2025-12-31"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282000.0, 6690000.0],
+          [282100.0, 6690000.0],
+          [282100.0, 6690100.0],
+          [282000.0, 6690100.0],
+          [282000.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": null,
+        "rol_predial": "00101-00005",
+        "uso_destino": "Sitio Eriazo",
+        "serie_cat": "no_agricola",
+        "avaluo_clp": 15000000,
+        "sup_decl_m2": 3000.0,
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282800.0, 6690000.0],
+          [282850.0, 6690000.0],
+          [282850.0, 6690060.0],
+          [282800.0, 6690060.0],
+          [282800.0, 6690000.0]
+        ]]
+      }
+    }
+  ]
+}
