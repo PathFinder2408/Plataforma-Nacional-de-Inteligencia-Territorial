@@ -1,0 +1,14 @@
+listen_addresses: "0.0.0.0:3000"
+
+postgres:
+  auto_publish:
+    tables:
+      from_schemas:
+        - public
+    functions:
+      from_schemas:
+        - public
+
+pmtiles:
+  paths:
+    - /pmtiles
