@@ -4,6 +4,8 @@ from typing import Any
 
 from django.db import connection
 
+from .scoring import compute_opportunity_score, evaluate_valuation_error
+
 COORD_PATTERN = re.compile(
     r"^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$"
 )
@@ -183,8 +185,11 @@ def search_parcelas(query: str, limit: int = 10) -> dict[str, Any]:
     }
 
 
-def get_parcela_ficha_completa(parcela_id: int) -> dict[str, Any] | None:
-    """Cruza espacialmente parcela con estatus fiscal, normativa, riesgos y relieve."""
+def get_parcela_ficha_completa(
+    parcela_id: int,
+    perfil: str = "inversionista",
+) -> dict[str, Any] | None:
+    """Cruza espacialmente parcela con estatus fiscal, normativa, riesgos, relieve y mercado H3."""
     with connection.cursor() as cursor:
         cursor.execute(BASE_PARCELA_SELECT + " WHERE p.id = %s;", [parcela_id])
         base_row = cursor.fetchone()
@@ -313,6 +318,57 @@ def get_parcela_ficha_completa(parcela_id: int) -> dict[str, Any] | None:
         )
         riesgo_rows = cursor.fetchall()
 
+        # Transacciones F2890 anonimizadas de la parcela.
+        cursor.execute(
+            """
+            SELECT
+                t.codigo_f2890,
+                t.fecha,
+                t.monto_clp,
+                t.precio_m2_clp,
+                f.nombre,
+                f.origen,
+                f.licencia,
+                t.fecha_corte,
+                t.confianza
+            FROM transaccion t
+            JOIN fuente_dato f ON f.id = t.fuente_id
+            WHERE t.parcela_id = %s
+            ORDER BY t.fecha DESC
+            LIMIT 10;
+            """,
+            [parcela_id],
+        )
+        tx_rows = cursor.fetchall()
+
+        # Celda H3 res. 8 que contiene el centroide de la parcela.
+        cursor.execute(
+            """
+            SELECT
+                ch.h3_index,
+                ch.resolucion,
+                ch.cantidad_transacciones,
+                ch.precio_m2_mediana_clp,
+                ch.precio_m2_promedio_clp,
+                ch.ratio_precio_avaluo,
+                ch.tendencia_pct,
+                f.nombre,
+                f.origen,
+                f.licencia,
+                ch.fecha_corte,
+                ch.confianza
+            FROM parcela p
+            JOIN celda_h3 ch
+              ON ch.resolucion = 8
+             AND ST_Intersects(ch.geom, ST_PointOnSurface(p.geom))
+            JOIN fuente_dato f ON f.id = ch.fuente_id
+            WHERE p.id = %s
+            LIMIT 1;
+            """,
+            [parcela_id],
+        )
+        h3_row = cursor.fetchone()
+
     relieve = None
     if rel_row and rel_row[0] is not None:
         relieve = {
@@ -363,17 +419,83 @@ def get_parcela_ficha_completa(parcela_id: int) -> dict[str, Any] | None:
         for r in riesgo_rows
     ]
 
+    tx_items = [
+        {
+            "codigo_f2890": r[0],
+            "fecha": r[1].isoformat() if r[1] else None,
+            "monto_clp": int(r[2]),
+            "precio_m2_clp": float(r[3]) if r[3] is not None else None,
+            "procedencia": _build_procedencia(r[4], r[5], r[6], r[7], r[8]),
+        }
+        for r in tx_rows
+    ]
+
+    mercado_h3 = None
+    if h3_row:
+        mercado_h3 = {
+            "h3_index": h3_row[0],
+            "resolucion": int(h3_row[1]),
+            "cantidad_transacciones": int(h3_row[2]),
+            "precio_m2_mediana_clp": float(h3_row[3]) if h3_row[3] is not None else None,
+            "precio_m2_promedio_clp": float(h3_row[4]) if h3_row[4] is not None else None,
+            "ratio_precio_avaluo": float(h3_row[5]) if h3_row[5] is not None else None,
+            "tendencia_pct": float(h3_row[6]) if h3_row[6] is not None else None,
+            "procedencia": _build_procedencia(
+                h3_row[7], h3_row[8], h3_row[9], h3_row[10], h3_row[11]
+            ),
+        }
+
+    es_fiscal = len(fiscal_items) > 0
+    puntaje = compute_opportunity_score(
+        perfil=perfil,
+        parcela=parcela,
+        es_fiscal=es_fiscal,
+        normativa=normativa_items,
+        riesgos=riesgo_items,
+        relieve=relieve,
+        mercado_h3=mercado_h3,
+    )
+
     return {
         "identificacion": parcela,
         "estatus_fiscal": {
-            "es_fiscal": len(fiscal_items) > 0,
+            "es_fiscal": es_fiscal,
             "coincidencias": fiscal_items,
         },
         "normativa": normativa_items,
         "riesgos": riesgo_items,
         "relieve": relieve,
+        "mercado": {
+            "transacciones": tx_items,
+            "celda_h3": mercado_h3,
+        },
+        "puntaje_oportunidad": puntaje,
         "descargo_general": (
             "Información territorial de carácter referencial. No acredita deslindes ni "
             "reemplaza escrituras, certificados de dominio o Certificados de Informaciones Previas."
         ),
     }
+
+
+def validate_market_valuation() -> dict[str, Any]:
+    """Evalúa error MAE/MAPE del modelo H3 contra transacciones F2890 observadas."""
+    sql = """
+        SELECT
+            t.monto_clp::double precision,
+            (
+                COALESCE(t.superficie_m2, p.superficie_m2) * ch.precio_m2_mediana_clp
+            )::double precision
+        FROM transaccion t
+        JOIN celda_h3 ch ON ch.h3_index = t.h3_res8
+        LEFT JOIN parcela p ON p.id = t.parcela_id
+        WHERE ch.precio_m2_mediana_clp IS NOT NULL
+          AND COALESCE(t.superficie_m2, p.superficie_m2) > 0;
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+    observaciones = [
+        {"monto_real_clp": float(r[0]), "monto_estimado_clp": float(r[1])} for r in rows
+    ]
+    return evaluate_valuation_error(observaciones)

@@ -1,7 +1,12 @@
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
-from .services import get_parcela_ficha_completa, lookup_parcela_by_point, search_parcelas
+from .services import (
+    get_parcela_ficha_completa,
+    lookup_parcela_by_point,
+    search_parcelas,
+    validate_market_valuation,
+)
 
 
 @require_GET
@@ -40,9 +45,32 @@ def buscar_parcelas_view(request: HttpRequest) -> JsonResponse:
 
 
 @require_GET
-def parcela_ficha_completa_view(_request: HttpRequest, parcela_id: int) -> JsonResponse:
+def parcela_ficha_completa_view(request: HttpRequest, parcela_id: int) -> JsonResponse:
     """Devuelve la ficha completa de parcela con estatus fiscal, normativa, riesgo y relieve."""
-    ficha = get_parcela_ficha_completa(parcela_id)
+    perfil = request.GET.get("perfil", "inversionista")
+    try:
+        ficha = get_parcela_ficha_completa(parcela_id, perfil=perfil)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
     if ficha is None:
         return JsonResponse({"error": "Parcela no encontrada."}, status=404)
     return JsonResponse(ficha)
+
+
+@require_GET
+def parcela_puntaje_view(request: HttpRequest, parcela_id: int) -> JsonResponse:
+    """Devuelve exclusivamente el puntaje explicable de oportunidad para un perfil."""
+    perfil = request.GET.get("perfil", "inversionista")
+    try:
+        ficha = get_parcela_ficha_completa(parcela_id, perfil=perfil)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    if ficha is None:
+        return JsonResponse({"error": "Parcela no encontrada."}, status=404)
+    return JsonResponse(ficha["puntaje_oportunidad"])
+
+
+@require_GET
+def mercado_validacion_view(_request: HttpRequest) -> JsonResponse:
+    """Devuelve métricas MAE/MAPE de validación contra transacciones F2890."""
+    return JsonResponse(validate_market_valuation())
