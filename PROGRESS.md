@@ -1,7 +1,7 @@
 # PROGRESS.md — Plataforma Nacional de Inteligencia Territorial
 
 - **Proyecto:** Plataforma Nacional de Inteligencia Territorial (Chile)
-- **Fase actual:** Fase 3 — Capas del Estado y riesgo (en curso)
+- **Fase actual:** Fase 3 — Capas del Estado y riesgo (completada) → Siguiente: Fase 4 — Inteligencia
 - **Última actualización:** 2026-11-18
 
 ## Fase 0 — Configuración inicial y validación de datos/legalidad
@@ -33,10 +33,15 @@
 | 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | `makemigrations --check` sin cambios pendientes; `martin` + SLOs validados |
 | 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | Gemini 4 Hydrogen (XHigh) | hecha | Carga repetible sin duplicados y reporte de calidad para las 4 capas | `etl/layers.py` + 4 fixtures La Serena + `test_layers_etl` verde |
 | 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | Gemini 4 Hydrogen (XHigh) | hecha | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Endpoint `/api/v1/parcelas/<id>/ficha-completa/` + cabida CIP referencial |
-| 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | — | pendiente | UI muestra capas y ficha completa; `make test` y `vite build` en verde | Sin GeoJSON pesado |
+| 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | Gemini 4 Hydrogen (XHigh) | hecha | UI muestra capas y ficha completa; `make test` y `vite build` en verde | `LayerToggles.tsx` + MVT `terreno_fiscal`/`capa_normativa`/`capa_riesgo` |
 
 ## Fase 4 — Inteligencia
-*(Pendiente de descomposición al iniciar la fase)*
+| ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | — | pendiente | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | Sin datos personales en transacciones |
+| 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | — | pendiente | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | Compara avalúo vs precio |
+| 4.3 | Motor de puntaje de oportunidad explicable (pesos transparentes + factores pro/contra) y validación error | P | — | pendiente | API devuelve score desglosado y test valida error documentado contra transacciones reales | Prohibido caja negra |
+| 4.4 | Comparador de terrenos, filtros espaciales y listas/alertas guardadas en frontend y API | M | — | pendiente | UI permite filtrar, comparar parcelas lado a lado y ver score explicable | Estado sincronizable |
 
 ## Fase 5 — Informe de dominio y monetización
 *(Pendiente de descomposición al iniciar la fase)*
@@ -45,7 +50,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para pasar a **`3.4` (Esfuerzo: MEDIO — toggles de capas fiscal/normativa/riesgo en MapLibre/Martin + UI de ficha completa)** y cerrar Fase 3.
+Confirmar para iniciar **`4.1` (Esfuerzo: PESADO — modelo `Transaccion` F2890 anonimizado + agregación H3 e índices BRIN)** en rama `feat/fase-4-inteligencia`. *(Recomendación: abrir una sesión nueva tras cerrar Fase 3 para ahorrar tokens).*
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -53,4 +58,4 @@ Confirmar para pasar a **`3.4` (Esfuerzo: MEDIO — toggles de capas fiscal/norm
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4`, `3.1`, `3.2` y `3.3` (`ficha-completa` con cruce espacial + cabida referencial, 14 tests en verde).
+- **2026-11-18:** Cerrada **Fase 3 completa** (`3.1`–`3.4`): capas fiscal/normativa/riesgo/DEM, `ficha-completa`, toggles MVT en MapLibre y `14 passed` en pytest + `vite build` verde. Descompuesta Fase 4.
