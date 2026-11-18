@@ -1,7 +1,7 @@
 # PROGRESS.md — Plataforma Nacional de Inteligencia Territorial
 
 - **Proyecto:** Plataforma Nacional de Inteligencia Territorial (Chile)
-- **Fase actual:** Fase 3 — Capas del Estado y riesgo (planificación)
+- **Fase actual:** Fase 3 — Capas del Estado y riesgo (en curso)
 - **Última actualización:** 2026-11-18
 
 ## Fase 0 — Configuración inicial y validación de datos/legalidad
@@ -30,7 +30,7 @@
 ## Fase 3 — Capas del Estado y riesgo
 | ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
 | --- | --- | --- | --- | --- | --- | --- |
-| 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | — | pendiente | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | Incluye parámetros urbanísticos JSONB |
+| 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | `makemigrations --check` sin cambios pendientes; `martin` + SLOs validados |
 | 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | — | pendiente | Carga repetible sin duplicados y reporte de calidad para las 4 capas | Fuentes con licencia y hash |
 | 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | — | pendiente | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Cabida estimada referencial |
 | 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | — | pendiente | UI muestra capas y ficha completa; `make test` y `vite build` en verde | Sin GeoJSON pesado |
@@ -45,7 +45,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para iniciar **`3.1` (Esfuerzo: PESADO — modelos y migración de Capas del Estado, Normativa, Riesgo y Relieve)** en rama `feat/fase-3-capas-estado`. *(Sugerencia: puedes abrir una sesión nueva para mantener el contexto ligero).*
+Confirmar para pasar a **`3.2` (Esfuerzo: MEDIO — Loaders ETL idempotentes y fixtures sintéticos La Serena para terreno fiscal, normativa, riesgo y relieve DEM)**.
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -53,4 +53,4 @@ Confirmar para iniciar **`3.1` (Esfuerzo: PESADO — modelos y migración de Cap
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5` y `2.1`–`2.4` (Fase 2 completa: API, Martin/PMTiles, MapLibre + buscador + SLOs).
+- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4` (SLOs reales medidos: punto→parcela p95 0.68 ms, Martin MVT p95 1.90 ms) y `3.1` (modelos/migración `0004`).
