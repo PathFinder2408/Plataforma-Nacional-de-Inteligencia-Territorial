@@ -1,7 +1,7 @@
 # PROGRESS.md — Plataforma Nacional de Inteligencia Territorial
 
 - **Proyecto:** Plataforma Nacional de Inteligencia Territorial (Chile)
-- **Fase actual:** Fase 2 — Motor de mapa (implementada; lista para validar SLOs y pasar a Fase 3)
+- **Fase actual:** Fase 3 — Capas del Estado y riesgo (planificación)
 - **Última actualización:** 2026-11-18
 
 ## Fase 0 — Configuración inicial y validación de datos/legalidad
@@ -28,7 +28,12 @@
 | 2.4 | Buscador UI + verificación de SLOs (`EXPLAIN ANALYZE` < 100 ms y carga de tiles < 150 ms) | M | Gemini 4 Hydrogen (Medium) | hecha | Búsqueda centra el mapa y script/test documenta latencias | `SearchBar.tsx` + `verify_slo.py` + `test_slo_explain.py` |
 
 ## Fase 3 — Capas del Estado y riesgo
-*(Pendiente de descomposición al iniciar la fase)*
+| ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | — | pendiente | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | Incluye parámetros urbanísticos JSONB |
+| 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | — | pendiente | Carga repetible sin duplicados y reporte de calidad para las 4 capas | Fuentes con licencia y hash |
+| 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | — | pendiente | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Cabida estimada referencial |
+| 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | — | pendiente | UI muestra capas y ficha completa; `make test` y `vite build` en verde | Sin GeoJSON pesado |
 
 ## Fase 4 — Inteligencia
 *(Pendiente de descomposición al iniciar la fase)*
@@ -40,7 +45,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Subir el código al repo de GitHub, validar SLOs en Docker (`verify_slo.py`) + probar la app web (`npm --prefix frontend run dev`) y confirmar para descomponer la **Fase 3 — Capas del Estado y riesgo**.
+Confirmar para iniciar **`3.1` (Esfuerzo: PESADO — modelos y migración de Capas del Estado, Normativa, Riesgo y Relieve)** en rama `feat/fase-3-capas-estado`. *(Sugerencia: puedes abrir una sesión nueva para mantener el contexto ligero).*
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
