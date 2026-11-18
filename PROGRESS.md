@@ -39,7 +39,7 @@
 | ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
 | --- | --- | --- | --- | --- | --- | --- |
 | 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | `h3==4.5.0` (ADR-006), `BrinIndex` en fecha y `GistIndex` en `celda_h3` |
-| 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | — | pendiente | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | Compara avalúo vs precio |
+| 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | Gemini 4 Hydrogen (Medium) | hecha | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | `etl/f2890.py` + `etl-f2890` + 16 passed |
 | 4.3 | Motor de puntaje de oportunidad explicable (pesos transparentes + factores pro/contra) y validación error | P | — | pendiente | API devuelve score desglosado y test valida error documentado contra transacciones reales | Prohibido caja negra |
 | 4.4 | Comparador de terrenos, filtros espaciales y listas/alertas guardadas en frontend y API | M | — | pendiente | UI permite filtrar, comparar parcelas lado a lado y ver score explicable | Estado sincronizable |
 
@@ -50,7 +50,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para pasar a **`4.2` (Esfuerzo: MEDIO — ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comunal)**.
+Confirmar si subimos a modelo **PESADO** para **`4.3` (Motor de puntaje de oportunidad explicable y validación de error contra transacciones)**.
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -58,4 +58,4 @@ Confirmar para pasar a **`4.2` (Esfuerzo: MEDIO — ETL F2890 sintético + cálc
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerrada Fase 3 completa y tarea `4.1` (modelos `Transaccion` anonimizado + `CeldaH3` + migración `0005`, `14 passed`).
+- **2026-11-18:** Cerrada Fase 3 completa y tareas `4.1`–`4.2` (ETL F2890 + agregación H3 res. 7–9, 16 tests en verde).

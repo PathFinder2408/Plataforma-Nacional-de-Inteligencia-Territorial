@@ -38,6 +38,9 @@ def test_etl_idempotency_and_explain_analyze(postgis_dsn: str, tmp_path: Path) -
         with conn.cursor() as cur:
             cur.execute(
                 """
+                UPDATE transaccion
+                SET parcela_id = NULL
+                WHERE comuna_id = (SELECT id FROM comuna WHERE codigo_ine = '04101');
                 DELETE FROM parcela
                 WHERE comuna_id = (SELECT id FROM comuna WHERE codigo_ine = '04101');
                 """
