@@ -1,7 +1,7 @@
 # PROGRESS.md — Plataforma Nacional de Inteligencia Territorial
 
 - **Proyecto:** Plataforma Nacional de Inteligencia Territorial (Chile)
-- **Fase actual:** Fase 3 — Capas del Estado y riesgo (completada) → Siguiente: Fase 4 — Inteligencia
+- **Fase actual:** Fase 4 — Inteligencia (en curso)
 - **Última actualización:** 2026-11-18
 
 ## Fase 0 — Configuración inicial y validación de datos/legalidad
@@ -38,7 +38,7 @@
 ## Fase 4 — Inteligencia
 | ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
 | --- | --- | --- | --- | --- | --- | --- |
-| 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | — | pendiente | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | Sin datos personales en transacciones |
+| 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | `h3==4.5.0` (ADR-006), `BrinIndex` en fecha y `GistIndex` en `celda_h3` |
 | 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | — | pendiente | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | Compara avalúo vs precio |
 | 4.3 | Motor de puntaje de oportunidad explicable (pesos transparentes + factores pro/contra) y validación error | P | — | pendiente | API devuelve score desglosado y test valida error documentado contra transacciones reales | Prohibido caja negra |
 | 4.4 | Comparador de terrenos, filtros espaciales y listas/alertas guardadas en frontend y API | M | — | pendiente | UI permite filtrar, comparar parcelas lado a lado y ver score explicable | Estado sincronizable |
@@ -50,7 +50,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para iniciar **`4.1` (Esfuerzo: PESADO — modelo `Transaccion` F2890 anonimizado + agregación H3 e índices BRIN)** en rama `feat/fase-4-inteligencia`. *(Recomendación: abrir una sesión nueva tras cerrar Fase 3 para ahorrar tokens).*
+Confirmar para pasar a **`4.2` (Esfuerzo: MEDIO — ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comunal)**.
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -58,4 +58,4 @@ Confirmar para iniciar **`4.1` (Esfuerzo: PESADO — modelo `Transaccion` F2890 
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerrada **Fase 3 completa** (`3.1`–`3.4`): capas fiscal/normativa/riesgo/DEM, `ficha-completa`, toggles MVT en MapLibre y `14 passed` en pytest + `vite build` verde. Descompuesta Fase 4.
+- **2026-11-18:** Cerrada Fase 3 completa y tarea `4.1` (modelos `Transaccion` anonimizado + `CeldaH3` + migración `0005`, `14 passed`).
