@@ -1,0 +1,64 @@
+{
+  "type": "FeatureCollection",
+  "name": "la_serena_normativa",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "instrumento": "PRC La Serena",
+        "zona": "ZU-1",
+        "poligono_id": "P1",
+        "nombre_zona": "Zona Urbana Mixta Central",
+        "usos": ["residencial", "equipamiento", "comercio"],
+        "parametros": {
+          "coef_constructibilidad": 2.4,
+          "coef_ocupacion_suelo": 0.6,
+          "altura_max_m": 21.0,
+          "superficie_predial_min_m2": 200
+        },
+        "vig_desde": "2020-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [281950.0, 6689950.0],
+          [282350.0, 6689950.0],
+          [282350.0, 6690150.0],
+          [281950.0, 6690150.0],
+          [281950.0, 6689950.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_comuna": "04101",
+        "instrumento": "PRC La Serena",
+        "zona": "ZAV",
+        "poligono_id": "P2",
+        "nombre_zona": "Zona Área Verde y Agrícola",
+        "usos": ["area_verde", "agricola"],
+        "parametros": {
+          "coef_constructibilidad": 0.2,
+          "coef_ocupacion_suelo": 0.1,
+          "altura_max_m": 7.0,
+          "superficie_predial_min_m2": 5000
+        },
+        "vig_desde": "2020-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282350.0, 6689950.0],
+          [282600.0, 6689950.0],
+          [282600.0, 6690150.0],
+          [282350.0, 6690150.0],
+          [282350.0, 6689950.0]
+        ]]
+      }
+    }
+  ]
+}

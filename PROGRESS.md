@@ -31,7 +31,7 @@
 | ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
 | --- | --- | --- | --- | --- | --- | --- |
 | 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | `makemigrations --check` sin cambios pendientes; `martin` + SLOs validados |
-| 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | — | pendiente | Carga repetible sin duplicados y reporte de calidad para las 4 capas | Fuentes con licencia y hash |
+| 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | Gemini 4 Hydrogen (XHigh) | hecha | Carga repetible sin duplicados y reporte de calidad para las 4 capas | `etl/layers.py` + 4 fixtures La Serena + `test_layers_etl` verde |
 | 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | — | pendiente | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Cabida estimada referencial |
 | 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | — | pendiente | UI muestra capas y ficha completa; `make test` y `vite build` en verde | Sin GeoJSON pesado |
 
@@ -45,7 +45,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para pasar a **`3.2` (Esfuerzo: MEDIO — Loaders ETL idempotentes y fixtures sintéticos La Serena para terreno fiscal, normativa, riesgo y relieve DEM)**.
+Confirmar para pasar a **`3.3` (Esfuerzo: PESADO — Servicio y endpoint `ficha-completa` con cruce espacial y cabida referencial)**.
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -53,4 +53,4 @@ Confirmar para pasar a **`3.2` (Esfuerzo: MEDIO — Loaders ETL idempotentes y f
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4` (SLOs reales medidos: punto→parcela p95 0.68 ms, Martin MVT p95 1.90 ms) y `3.1` (modelos/migración `0004`).
+- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4`, `3.1` y `3.2` (loaders ETL idempotentes de 4 capas estatales/riesgo/DEM, 11 tests en verde).

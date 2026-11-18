@@ -68,20 +68,57 @@ def compute_source_hash(input_path: str) -> str:
     return hashlib.sha256(input_path.encode("utf-8")).hexdigest()
 
 
-def read_spatial_source(config: ETLConfig) -> gpd.GeoDataFrame:
-    """Lee un archivo espacial (GPKG/SHP/GeoJSON) o servicio WFS vía GeoPandas/pyogrio."""
-    path = Path(config.input_path)
+def read_spatial_path(
+    input_path: str,
+    source_crs: str,
+    layer: str | None = None,
+) -> gpd.GeoDataFrame:
+    """Lee un archivo espacial (GPKG/SHP/GeoJSON) o WFS usando pyogrio/GeoJSON tolerante."""
+    path = Path(input_path)
     if path.suffix.lower() in {".geojson", ".json"} and path.exists():
         # Lectura tolerante en GeoJSON para capturar anillos sin cerrar u otras anomalías por fila.
-        return _read_geojson_tolerant(path, config.source_crs)
+        return _read_geojson_tolerant(path, source_crs)
 
     read_kwargs: dict[str, Any] = {"engine": "pyogrio"}
-    if config.layer:
-        read_kwargs["layer"] = config.layer
-    gdf = gpd.read_file(config.input_path, **read_kwargs)
+    if layer:
+        read_kwargs["layer"] = layer
+    gdf = gpd.read_file(input_path, **read_kwargs)
     if gdf.crs is None:
-        gdf = gdf.set_crs(config.source_crs, allow_override=True)
+        gdf = gdf.set_crs(source_crs, allow_override=True)
     return gdf
+
+
+def read_spatial_source(config: ETLConfig) -> gpd.GeoDataFrame:
+    """Lee un archivo espacial desde la configuración de parcelas."""
+    return read_spatial_path(config.input_path, config.source_crs, config.layer)
+
+
+def normalize_reproject_polygon(
+    geom: BaseGeometry | None,
+    transformer: Transformer,
+    raw_err: Any = None,
+) -> tuple[MultiPolygon | None, bool, str | None]:
+    """Valida, repara con make_valid y reproyecta a MultiPolygon EPSG:4326."""
+    if isinstance(raw_err, str) and raw_err:
+        return None, False, raw_err
+    if geom is None or geom.is_empty:
+        return None, False, "geometria_vacia"
+
+    was_repaired = False
+    if not geom.is_valid:
+        geom = make_valid(geom)
+        was_repaired = True
+
+    multipoly = _to_multipolygon(geom)
+    if multipoly is None or not multipoly.is_valid:
+        return None, was_repaired, "geometria_invalida_irreparable"
+
+    reprojected = shapely_transform(transformer.transform, multipoly)
+    reprojected_multi = _to_multipolygon(reprojected)
+    if reprojected_multi is None or not reprojected_multi.is_valid:
+        return None, was_repaired, "geometria_invalida_post_reproyeccion"
+
+    return reprojected_multi, was_repaired, None
 
 
 def _read_geojson_tolerant(path: Path, source_crs: str) -> gpd.GeoDataFrame:
@@ -235,33 +272,11 @@ def transform_parcelas(gdf: gpd.GeoDataFrame, config: ETLConfig, file_hash: str)
             continue
 
         raw_err = row.get("_raw_geom_error") if has_raw_error_col else None
-        if isinstance(raw_err, str) and raw_err:
-            rejected_rows.append(RejectedRow(row_num, rol, codigo_ine, raw_err))
-            continue
-
-        geom = row.geometry
-        if geom is None or geom.is_empty:
-            rejected_rows.append(RejectedRow(row_num, rol, codigo_ine, "geometria_vacia"))
-            continue
-
-        was_repaired = False
-        if not geom.is_valid:
-            geom = make_valid(geom)
-            was_repaired = True
-
-        multipoly = _to_multipolygon(geom)
-        if multipoly is None or not multipoly.is_valid:
-            rejected_rows.append(
-                RejectedRow(row_num, rol, codigo_ine, "geometria_invalida_irreparable")
-            )
-            continue
-
-        reprojected = shapely_transform(transformer.transform, multipoly)
-        reprojected_multi = _to_multipolygon(reprojected)
-        if reprojected_multi is None or not reprojected_multi.is_valid:
-            rejected_rows.append(
-                RejectedRow(row_num, rol, codigo_ine, "geometria_invalida_post_reproyeccion")
-            )
+        reprojected_multi, was_repaired, geom_err = normalize_reproject_polygon(
+            row.geometry, transformer, raw_err
+        )
+        if geom_err or reprojected_multi is None:
+            rejected_rows.append(RejectedRow(row_num, rol, codigo_ine, geom_err or "geom_error"))
             continue
 
         seen_keys.add(key)

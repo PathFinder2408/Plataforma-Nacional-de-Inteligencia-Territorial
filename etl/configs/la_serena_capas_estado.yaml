@@ -1,0 +1,70 @@
+capas:
+  - tipo: fiscal
+    input_path: "etl/fixtures/la_serena_fiscal.geojson"
+    source_crs: "EPSG:32719"
+    fuente:
+      nombre: "Catastro Fiscal Sintético La Serena"
+      origen: "sintetico_bn"
+      licencia: "CC0-1.0 (uso interno pruebas)"
+      fecha_corte: "2026-10-15"
+      confianza_defecto: "media"
+      version_etl: "1.0.0"
+    columns:
+      codigo_bn: "cod_bn"
+      codigo_ine: "cod_comuna"
+      institucion: "institucion"
+      tipo: "tipo_fiscal"
+      vigente_desde: "vig_desde"
+      vigente_hasta: "vig_hasta"
+
+  - tipo: normativa
+    input_path: "etl/fixtures/la_serena_normativa.geojson"
+    source_crs: "EPSG:32719"
+    fuente:
+      nombre: "Zonificación PRC Sintética La Serena"
+      origen: "sintetico_ipt"
+      licencia: "CC0-1.0 (uso interno pruebas)"
+      fecha_corte: "2026-10-01"
+      confianza_defecto: "referencial"
+      version_etl: "1.0.0"
+    columns:
+      codigo_ine: "cod_comuna"
+      instrumento: "instrumento"
+      codigo_zona: "zona"
+      codigo_poligono: "poligono_id"
+      nombre_zona: "nombre_zona"
+      usos_permitidos: "usos"
+      parametros_urbanisticos: "parametros"
+      vigente_desde: "vig_desde"
+      vigente_hasta: "vig_hasta"
+
+  - tipo: riesgo
+    input_path: "etl/fixtures/la_serena_riesgo.geojson"
+    source_crs: "EPSG:32719"
+    fuente:
+      nombre: "Amenazas Naturales Sintéticas La Serena"
+      origen: "sintetico_senapred"
+      licencia: "CC0-1.0 (uso interno pruebas)"
+      fecha_corte: "2026-10-20"
+      confianza_defecto: "media"
+      version_etl: "1.0.0"
+    columns:
+      codigo_evento: "cod_evento"
+      tipo: "tipo_riesgo"
+      nivel: "nivel_riesgo"
+      descripcion: "descripcion"
+
+  - tipo: relieve
+    input_path: "etl/fixtures/la_serena_relieve.geojson"
+    source_crs: "EPSG:32719"
+    fuente:
+      nombre: "DEM Sintético La Serena (Copernicus/SRTM ref)"
+      origen: "sintetico_dem"
+      licencia: "CC0-1.0 (uso interno pruebas)"
+      fecha_corte: "2026-09-30"
+      confianza_defecto: "media"
+      version_etl: "1.0.0"
+    columns:
+      elevacion_m: "elevacion_m"
+      pendiente_pct: "pendiente_pct"
+      aspecto: "aspecto"

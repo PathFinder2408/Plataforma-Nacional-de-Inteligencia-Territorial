@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import psycopg
 
-from etl.config import ETLConfig
+from etl.config import ETLConfig, FuenteConfig
 from etl.transform import PreparedParcela, RejectedRow
 
 
@@ -40,12 +40,13 @@ def get_db_dsn() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
 
 
-def _upsert_fuente(
+def upsert_fuente(
     cur: psycopg.Cursor,
-    config: ETLConfig,
+    fuente: FuenteConfig,
     file_hash: str,
     total_read: int,
 ) -> int:
+    """Registra o actualiza una FuenteDato por (nombre, hash_archivo, version_etl)."""
     sql = """
         INSERT INTO fuente_dato (
             nombre, origen, url, licencia, fecha_corte, fecha_descarga,
@@ -60,15 +61,15 @@ def _upsert_fuente(
     cur.execute(
         sql,
         (
-            config.fuente.nombre,
-            config.fuente.origen,
-            config.fuente.url,
-            config.fuente.licencia,
-            config.fuente.fecha_corte,
+            fuente.nombre,
+            fuente.origen,
+            fuente.url,
+            fuente.licencia,
+            fuente.fecha_corte,
             file_hash,
-            config.fuente.version_etl,
+            fuente.version_etl,
             total_read,
-            config.fuente.confianza_defecto,
+            fuente.confianza_defecto,
         ),
     )
     row = cur.fetchone()
@@ -86,7 +87,7 @@ def load_parcelas_idempotent(
     """Carga parcelas por lotes usando tabla temporal, ST_Area(geography) y ON CONFLICT."""
     with psycopg.connect(dsn) as conn:
         with conn.cursor() as cur:
-            fuente_id = _upsert_fuente(cur, config, file_hash, total_read)
+            fuente_id = upsert_fuente(cur, config.fuente, file_hash, total_read)
 
             cur.execute(
                 """
