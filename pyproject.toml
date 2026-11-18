@@ -1,0 +1,32 @@
+[project]
+name = "plataforma-territorial"
+version = "0.1.0"
+description = "Plataforma Nacional de Inteligencia Territorial - Backend y ETL"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<5.2",
+    "psycopg[binary]>=3.2,<4.0",
+    "geopandas>=1.0,<2.0",
+    "pyogrio>=0.10,<1.0",
+    "pyyaml>=6.0,<7.0",
+    "redis>=5.0,<6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-django>=4.9,<5.0",
+    "ruff>=0.7,<1.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+pythonpath = ["backend", "."]
+testpaths = ["backend", "etl"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
