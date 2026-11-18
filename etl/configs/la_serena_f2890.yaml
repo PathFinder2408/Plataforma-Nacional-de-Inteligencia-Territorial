@@ -1,0 +1,19 @@
+input_path: "etl/fixtures/la_serena_f2890_sintetico.csv"
+resolutions: [7, 8, 9]
+
+fuente:
+  nombre: "Transferencias F2890 Sintéticas La Serena"
+  origen: "sintetico_sii_f2890"
+  licencia: "CC0-1.0 (uso interno pruebas)"
+  fecha_corte: "2026-10-30"
+  confianza_defecto: "media"
+  version_etl: "1.0.0"
+
+columns:
+  codigo_f2890: "folio_f2890"
+  codigo_ine: "cod_comuna"
+  rol: "rol_predial"
+  fecha: "fecha_inscripcion"
+  monto_clp: "monto_clp"
+  superficie_m2: "sup_m2"
+  destino: "destino"

@@ -72,12 +72,40 @@ export function TerritorioMap({
             minzoom: 10,
             maxzoom: 20,
           },
+          h3: {
+            type: "vector",
+            tiles: [`${window.location.origin}${TILES_BASE}/celda_h3/{z}/{x}/{y}`],
+            minzoom: 8,
+            maxzoom: 18,
+          },
         },
         layers: [
           {
             id: "osm-base",
             type: "raster",
             source: "osm",
+          },
+          {
+            id: "h3-fill",
+            type: "fill",
+            source: "h3",
+            "source-layer": "celda_h3",
+            layout: { visibility: visibleLayers.h3 ? "visible" : "none" },
+            paint: {
+              "fill-color": "#f59e0b",
+              "fill-opacity": 0.14,
+            },
+          },
+          {
+            id: "h3-outline",
+            type: "line",
+            source: "h3",
+            "source-layer": "celda_h3",
+            layout: { visibility: visibleLayers.h3 ? "visible" : "none" },
+            paint: {
+              "line-color": "#d97706",
+              "line-width": 1.2,
+            },
           },
           {
             id: "normativa-fill",
@@ -198,6 +226,8 @@ export function TerritorioMap({
       ["normativa-fill", visibleLayers.normativa],
       ["normativa-outline", visibleLayers.normativa],
       ["riesgo-fill", visibleLayers.riesgo],
+      ["h3-fill", visibleLayers.h3],
+      ["h3-outline", visibleLayers.h3],
     ];
     for (const [layerId, isVisible] of mapping) {
       if (map.getLayer(layerId)) {

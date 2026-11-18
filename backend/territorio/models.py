@@ -1,5 +1,5 @@
 from django.contrib.gis.db import models
-from django.contrib.postgres.indexes import GistIndex
+from django.contrib.postgres.indexes import BrinIndex, GistIndex
 
 
 class NivelConfianza(models.TextChoices):
@@ -299,3 +299,92 @@ class CapaRiesgo(models.Model):
 
     def __str__(self) -> str:
         return f"{self.tipo} ({self.nivel})"
+
+
+class Transaccion(models.Model):
+    """Transferencia inmobiliaria F2890 anonimizada (sin PII según Ley 21.719)."""
+
+    codigo_f2890 = models.CharField(max_length=64)
+    comuna = models.ForeignKey(
+        Comuna, on_delete=models.PROTECT, related_name="transacciones"
+    )
+    parcela = models.ForeignKey(
+        Parcela,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="transacciones",
+    )
+    rol = models.CharField(max_length=32)
+    fecha = models.DateField()
+    monto_clp = models.BigIntegerField()
+    superficie_m2 = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    precio_m2_clp = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    destino = models.CharField(max_length=80, blank=True, default="", db_default="")
+    h3_res8 = models.CharField(max_length=20, blank=True, default="", db_default="")
+    fuente = models.ForeignKey(FuenteDato, on_delete=models.PROTECT, related_name="transacciones")
+    fecha_corte = models.DateField()
+    confianza = models.CharField(
+        max_length=20,
+        choices=NivelConfianza.choices,
+        default=NivelConfianza.MEDIA,
+    )
+
+    class Meta:
+        db_table = "transaccion"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["comuna", "codigo_f2890"],
+                name="uq_transaccion_comuna_f2890",
+            )
+        ]
+        indexes = [
+            BrinIndex(fields=["fecha"], name="idx_transaccion_fecha_brin"),
+            models.Index(fields=["comuna", "rol", "fecha"], name="idx_trans_com_rol_fecha"),
+            models.Index(fields=["h3_res8", "fecha"], name="idx_trans_h3_fecha"),
+        ]
+
+    def __str__(self) -> str:
+        return f"F2890 {self.codigo_f2890} ({self.rol})"
+
+
+class CeldaH3(models.Model):
+    """Agregación espacial por hexágono H3 (resoluciones 7-9) en EPSG:4326."""
+
+    h3_index = models.CharField(max_length=20, unique=True)
+    resolucion = models.SmallIntegerField()
+    comuna = models.ForeignKey(
+        Comuna,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="celdas_h3",
+    )
+    geom = models.PolygonField(srid=4326, spatial_index=False)
+    cantidad_transacciones = models.IntegerField(default=0, db_default=0)
+    precio_m2_mediana_clp = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    precio_m2_promedio_clp = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    ratio_precio_avaluo = models.FloatField(null=True, blank=True)
+    tendencia_pct = models.FloatField(null=True, blank=True)
+    fuente = models.ForeignKey(FuenteDato, on_delete=models.PROTECT, related_name="celdas_h3")
+    fecha_corte = models.DateField()
+    confianza = models.CharField(
+        max_length=20,
+        choices=NivelConfianza.choices,
+        default=NivelConfianza.REFERENCIAL,
+    )
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "celda_h3"
+        indexes = [
+            GistIndex(fields=["geom"], name="idx_celda_h3_geom_gist"),
+            models.Index(fields=["resolucion", "comuna"], name="idx_celda_h3_res_comuna"),
+        ]
+
+    def __str__(self) -> str:
+        return f"H3 r{self.resolucion}:{self.h3_index}"

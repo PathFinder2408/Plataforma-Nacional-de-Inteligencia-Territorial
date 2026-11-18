@@ -1,7 +1,7 @@
 # PROGRESS.md — Plataforma Nacional de Inteligencia Territorial
 
 - **Proyecto:** Plataforma Nacional de Inteligencia Territorial (Chile)
-- **Fase actual:** Fase 3 — Capas del Estado y riesgo (completada) → Siguiente: Fase 4 — Inteligencia
+- **Fase actual:** Fase 4 — Inteligencia (completada) → Siguiente: Fase 5 — Informe de dominio y monetización
 - **Última actualización:** 2026-11-18
 
 ## Fase 0 — Configuración inicial y validación de datos/legalidad
@@ -38,19 +38,24 @@
 ## Fase 4 — Inteligencia
 | ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
 | --- | --- | --- | --- | --- | --- | --- |
-| 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | — | pendiente | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | Sin datos personales en transacciones |
-| 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | — | pendiente | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | Compara avalúo vs precio |
-| 4.3 | Motor de puntaje de oportunidad explicable (pesos transparentes + factores pro/contra) y validación error | P | — | pendiente | API devuelve score desglosado y test valida error documentado contra transacciones reales | Prohibido caja negra |
-| 4.4 | Comparador de terrenos, filtros espaciales y listas/alertas guardadas en frontend y API | M | — | pendiente | UI permite filtrar, comparar parcelas lado a lado y ver score explicable | Estado sincronizable |
+| 4.1 | Modelo `Transaccion` (F2890 anonimizado), agregación H3 (res. 7–9) y migración con índices BRIN/GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica `transaccion` y `celda_h3` con anonimización Ley 21.719 y fuentes | `h3==4.5.0` (ADR-006), `BrinIndex` en fecha y `GistIndex` en `celda_h3` |
+| 4.2 | ETL F2890 sintético + cálculo de métricas por celda H3 y tendencia comuna | M | Gemini 4 Hydrogen (Medium) | hecha | Carga idempotente F2890 + tabla H3 poblada; tests `pytest` en verde | `etl/f2890.py` + `etl-f2890` + 16 passed |
+| 4.3 | Motor de puntaje de oportunidad explicable (pesos transparentes + factores pro/contra) y validación error | P | Gemini 4 Hydrogen (High) | hecha | API devuelve score desglosado y test valida error documentado contra transacciones reales | `scoring.py` + `/puntaje/` + `/mercado/validacion/` (MAE/MAPE) |
+| 4.4 | Comparador de terrenos, filtros espaciales y listas/alertas guardadas en frontend y API | M | Gemini 4 Hydrogen (Medium) | hecha | UI permite filtrar, comparar parcelas lado a lado y ver score explicable | `/parcelas/filtrar/`, capa H3 MVT, `ComparadorYFiltrosPanel.tsx` |
 
 ## Fase 5 — Informe de dominio y monetización
-*(Pendiente de descomposición al iniciar la fase)*
+| ID | Tarea | Esfuerzo (L/M/P) | Modelo usado | Estado | Criterio de aceptación | Notas |
+| --- | --- | --- | --- | --- | --- | --- |
+| 5.1 | Modelos `InformeDominio` y `ConsentimientoAuditoria` (Ley 21.719: finalidad, base legal, retención) + migración | P | — | pendiente | `make migrate` aplica tablas con trazabilidad de acceso y expiración | Sin datos personales expuestos por defecto |
+| 5.2 | Patrón Strategy para proveedor de informe de dominio (interfaz + mock dev) y tarea Celery/Redis asíncrona | P | — | pendiente | Solicitud encola tarea Celery y registra auditoría; cero scraping CBR | Interfaz desacoplada para proveedor autorizado |
+| 5.3 | Endpoints de solicitud/consulta de informe de dominio + RBAC/rate-limit básico + tests de cumplimiento | M | — | pendiente | Tests verifican auditoría obligatoria, autorización y expiración de retención | — |
+| 5.4 | UI de solicitud bajo demanda (con consentimiento explícito) y exportación de ficha/informe | M | — | pendiente | Usuario solicita informe con finalidad declarada y descarga ficha legible | — |
 
 ## Fase 6 — Escalamiento nacional por oleadas
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para iniciar **`4.1` (Esfuerzo: PESADO — modelo `Transaccion` F2890 anonimizado + agregación H3 e índices BRIN)** en rama `feat/fase-4-inteligencia`. *(Recomendación: abrir una sesión nueva tras cerrar Fase 3 para ahorrar tokens).*
+Confirmar para iniciar **`5.1` (Esfuerzo: PESADO — modelos `InformeDominio` y `ConsentimientoAuditoria` bajo Ley 21.719)** en rama `feat/fase-5-informe-dominio`. *(Recomendación: abrir sesión nueva por extensión de contexto).*
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -58,4 +63,4 @@ Confirmar para iniciar **`4.1` (Esfuerzo: PESADO — modelo `Transaccion` F2890 
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerrada **Fase 3 completa** (`3.1`–`3.4`): capas fiscal/normativa/riesgo/DEM, `ficha-completa`, toggles MVT en MapLibre y `14 passed` en pytest + `vite build` verde. Descompuesta Fase 4.
+- **2026-11-18:** Cerrada **Fase 4 completa** (`4.1`–`4.4`: F2890, H3, puntaje explicable, filtros y comparador; `19 passed` + `vite build` verde). Descompuesta Fase 5.
