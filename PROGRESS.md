@@ -32,7 +32,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 3.1 | Modelos GeoDjango (`TerrenoFiscal`, `CapaNormativa`, `CapaRiesgo`, relieve en `Parcela`) y migración con GiST | P | Gemini 4 Hydrogen (XHigh) | hecha | `make migrate` aplica tablas nuevas con `FuenteDato`, `fecha_corte`, `confianza` e índices GiST | `makemigrations --check` sin cambios pendientes; `martin` + SLOs validados |
 | 3.2 | Loaders ETL idempotentes y fixtures sintéticos La Serena (fiscal, normativa, riesgo, DEM) | M | Gemini 4 Hydrogen (XHigh) | hecha | Carga repetible sin duplicados y reporte de calidad para las 4 capas | `etl/layers.py` + 4 fixtures La Serena + `test_layers_etl` verde |
-| 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | — | pendiente | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Cabida estimada referencial |
+| 3.3 | Servicio y endpoint `ficha-completa` (cruce espacial de parcela con fiscal, normativa, riesgo y relieve) | P | Gemini 4 Hydrogen (XHigh) | hecha | API devuelve cada bloque con su fuente, fecha de corte, confianza y descargo referencial | Endpoint `/api/v1/parcelas/<id>/ficha-completa/` + cabida CIP referencial |
 | 3.4 | Capas en Martin/frontend (toggles de riesgo/normativa/fiscal + ficha completa) y tests `pytest` | M | — | pendiente | UI muestra capas y ficha completa; `make test` y `vite build` en verde | Sin GeoJSON pesado |
 
 ## Fase 4 — Inteligencia
@@ -45,7 +45,7 @@
 *(Pendiente de descomposición al iniciar la fase)*
 
 ## Siguiente paso
-Confirmar para pasar a **`3.3` (Esfuerzo: PESADO — Servicio y endpoint `ficha-completa` con cruce espacial y cabida referencial)**.
+Confirmar para pasar a **`3.4` (Esfuerzo: MEDIO — toggles de capas fiscal/normativa/riesgo en MapLibre/Martin + UI de ficha completa)** y cerrar Fase 3.
 
 ## Bloqueos y riesgos
 - **Geometría de parcelas piloto:** SII-Mapas es referencial e institucional (WMS/WMTS); requiere definir comuna piloto y fuente legítima.
@@ -53,4 +53,4 @@ Confirmar para pasar a **`3.3` (Esfuerzo: PESADO — Servicio y endpoint `ficha-
 - **Calidad heterogénea:** Normativa urbana (PRC/PRI/PRMS) desigual por comuna.
 
 ## Registro de sesiones
-- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4`, `3.1` y `3.2` (loaders ETL idempotentes de 4 capas estatales/riesgo/DEM, 11 tests en verde).
+- **2026-11-18:** Cerradas tareas `0.1`, `1.1`–`1.5`, `2.1`–`2.4`, `3.1`, `3.2` y `3.3` (`ficha-completa` con cruce espacial + cabida referencial, 14 tests en verde).

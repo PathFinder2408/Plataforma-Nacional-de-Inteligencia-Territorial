@@ -1,7 +1,7 @@
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
-from .services import lookup_parcela_by_point, search_parcelas
+from .services import get_parcela_ficha_completa, lookup_parcela_by_point, search_parcelas
 
 
 @require_GET
@@ -37,3 +37,12 @@ def buscar_parcelas_view(request: HttpRequest) -> JsonResponse:
     except ValueError as exc:
         return JsonResponse({"error": str(exc)}, status=400)
     return JsonResponse(payload)
+
+
+@require_GET
+def parcela_ficha_completa_view(_request: HttpRequest, parcela_id: int) -> JsonResponse:
+    """Devuelve la ficha completa de parcela con estatus fiscal, normativa, riesgo y relieve."""
+    ficha = get_parcela_ficha_completa(parcela_id)
+    if ficha is None:
+        return JsonResponse({"error": "Parcela no encontrada."}, status=404)
+    return JsonResponse(ficha)
