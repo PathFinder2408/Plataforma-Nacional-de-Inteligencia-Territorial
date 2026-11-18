@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "name": "la_serena_riesgo",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_evento": "TSU-04101-01",
+        "tipo_riesgo": "tsunami",
+        "nivel_riesgo": "alto",
+        "descripcion": "Área de inundación por tsunami cota 30 m (sintético piloto)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282180.0, 6689980.0],
+          [282320.0, 6689980.0],
+          [282320.0, 6690080.0],
+          [282180.0, 6690080.0],
+          [282180.0, 6689980.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_evento": "REM-04101-01",
+        "tipo_riesgo": "remocion_masa",
+        "nivel_riesgo": "medio",
+        "descripcion": "Susceptibilidad media a remoción en masa (sintético piloto)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282380.0, 6689980.0],
+          [282520.0, 6689980.0],
+          [282520.0, 6690120.0],
+          [282380.0, 6690120.0],
+          [282380.0, 6689980.0]
+        ]]
+      }
+    }
+  ]
+}

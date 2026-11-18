@@ -1,6 +1,6 @@
 param(
     [Parameter(Position = 0)]
-    [ValidateSet("up", "down", "migrate", "etl", "test")]
+    [ValidateSet("up", "down", "migrate", "etl", "etl-layers", "test")]
     [string]$Task = "up"
 )
 
@@ -11,6 +11,9 @@ switch ($Task) {
     "etl"     {
         docker compose exec -w /app backend uv run python -m etl.seed
         docker compose exec -w /app backend uv run python -m etl.run --config etl/configs/la_serena_sintetico.yaml
+    }
+    "etl-layers" {
+        docker compose exec -w /app backend uv run python -m etl.layers --config etl/configs/la_serena_capas_estado.yaml
     }
     "test"    { docker compose exec -w /app backend uv run pytest }
 }

@@ -1,0 +1,48 @@
+{
+  "type": "FeatureCollection",
+  "name": "la_serena_fiscal",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_bn": "BN-04101-001",
+        "cod_comuna": "04101",
+        "institucion": "Ministerio de Bienes Nacionales",
+        "tipo_fiscal": "Fiscal disponible",
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [281900.0, 6690000.0],
+          [281980.0, 6690000.0],
+          [281980.0, 6690080.0],
+          [281900.0, 6690080.0],
+          [281900.0, 6690000.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "cod_bn": "BN-04101-002",
+        "cod_comuna": "04101",
+        "institucion": "Ministerio de Bienes Nacionales",
+        "tipo_fiscal": "Concesión uso gratuito",
+        "vig_desde": "2026-01-01",
+        "vig_hasta": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282400.0, 6690000.0],
+          [282500.0, 6690000.0],
+          [282500.0, 6690100.0],
+          [282400.0, 6690100.0],
+          [282400.0, 6690000.0]
+        ]]
+      }
+    }
+  ]
+}

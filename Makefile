@@ -1,4 +1,4 @@
-.PHONY: up down migrate etl test
+.PHONY: up down migrate etl etl-layers test
 
 up:
 	docker compose up -d --build
@@ -12,6 +12,9 @@ migrate:
 etl:
 	docker compose exec -w /app backend uv run python -m etl.seed
 	docker compose exec -w /app backend uv run python -m etl.run --config etl/configs/la_serena_sintetico.yaml
+
+etl-layers:
+	docker compose exec -w /app backend uv run python -m etl.layers --config etl/configs/la_serena_capas_estado.yaml
 
 test:
 	docker compose exec -w /app backend uv run pytest

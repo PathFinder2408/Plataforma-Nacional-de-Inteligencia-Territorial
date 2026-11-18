@@ -203,6 +203,110 @@ body,
   background: #f1f5f9;
 }
 
+.layer-toggles {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0.75rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+.layer-toggles-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #334155;
+}
+
+.layer-toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.swatch-fiscal {
+  background: #10b981;
+}
+
+.swatch-normativa {
+  background: #8b5cf6;
+}
+
+.swatch-riesgo {
+  background: #ef4444;
+}
+
+.detail-section {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.detail-section h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.9rem;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.section-head h3 {
+  margin: 0;
+}
+
+.subcard {
+  padding: 0.55rem 0.65rem;
+  margin-bottom: 0.45rem;
+  border-radius: 0.4rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+}
+
+.subcard p {
+  margin: 0.15rem 0;
+}
+
+.subcard-risk {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.risk-level {
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.cabida-grid {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.35rem 0;
+  font-size: 0.78rem;
+}
+
+.meta-line {
+  font-size: 0.74rem;
+  color: #475569;
+}
+
 @media (max-width: 768px) {
   .app-layout {
     grid-template-columns: 1fr;

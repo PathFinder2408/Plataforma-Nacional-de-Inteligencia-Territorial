@@ -1,0 +1,42 @@
+{
+  "type": "FeatureCollection",
+  "name": "la_serena_relieve_dem",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "elevacion_m": 24.5,
+        "pendiente_pct": 1.8,
+        "aspecto": "O"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [281950.0, 6689950.0],
+          [282350.0, 6689950.0],
+          [282350.0, 6690150.0],
+          [281950.0, 6690150.0],
+          [281950.0, 6689950.0]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "elevacion_m": 42.0,
+        "pendiente_pct": 6.5,
+        "aspecto": "SO"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [282350.0, 6689950.0],
+          [282600.0, 6689950.0],
+          [282600.0, 6690150.0],
+          [282350.0, 6690150.0],
+          [282350.0, 6689950.0]
+        ]]
+      }
+    }
+  ]
+}

@@ -1,12 +1,27 @@
-import type { ParcelaFicha } from "../../types/parcela";
+import type { ParcelaFicha, ParcelaFichaCompleta, ProcedenciaDato } from "../../types/parcela";
 
 interface ParcelaFichaPanelProps {
   ficha: ParcelaFicha | null;
+  fichaCompleta: ParcelaFichaCompleta | null;
   loading: boolean;
   error: string | null;
 }
 
-export function ParcelaFichaPanel({ ficha, loading, error }: ParcelaFichaPanelProps) {
+function ProvenanceMeta({ data }: { data: ProcedenciaDato }) {
+  return (
+    <p className="meta-line">
+      Fuente: {data.fuente} · Corte: {data.fecha_corte ?? "—"} · Confianza:{" "}
+      <strong>{data.confianza}</strong>
+    </p>
+  );
+}
+
+export function ParcelaFichaPanel({
+  ficha,
+  fichaCompleta,
+  loading,
+  error,
+}: ParcelaFichaPanelProps) {
   return (
     <aside className="ficha-panel" aria-label="Ficha territorial">
       <header className="ficha-header">
@@ -64,20 +79,123 @@ export function ParcelaFichaPanel({ ficha, loading, error }: ParcelaFichaPanelPr
           </dl>
 
           <section className="procedencia-box">
-            <h3>Procedencia del dato</h3>
-            <p>
-              <strong>Fuente:</strong> {ficha.procedencia.fuente}
-            </p>
-            <p>
-              <strong>Fecha de corte:</strong> {ficha.procedencia.fecha_corte ?? "—"}
-            </p>
-            <p>
-              <strong>Licencia:</strong> {ficha.procedencia.licencia}
-            </p>
-            <p className="disclaimer">
-              Cartografía referencial: no acredita deslindes ni reemplaza certificados oficiales.
-            </p>
+            <h3>Procedencia identificación</h3>
+            <ProvenanceMeta data={ficha.procedencia} />
+            <p className="meta-line">Licencia: {ficha.procedencia.licencia}</p>
           </section>
+
+          {fichaCompleta && (
+            <>
+              <section className="detail-section">
+                <div className="section-head">
+                  <h3>Estatus fiscal</h3>
+                  <span
+                    className={`badge ${
+                      fichaCompleta.estatus_fiscal.es_fiscal
+                        ? "badge-media"
+                        : "badge-alta"
+                    }`}
+                  >
+                    {fichaCompleta.estatus_fiscal.es_fiscal ? "Fiscal" : "Privado / No fiscal"}
+                  </span>
+                </div>
+                {fichaCompleta.estatus_fiscal.coincidencias.map((item) => (
+                  <div key={item.codigo_bn} className="subcard">
+                    <p>
+                      <strong>{item.codigo_bn}</strong> · {item.institucion} ({item.tipo})
+                    </p>
+                    <p className="meta-line">Traslape: {item.porcentaje_traslape ?? "—"} %</p>
+                    <ProvenanceMeta data={item.procedencia} />
+                  </div>
+                ))}
+              </section>
+
+              <section className="detail-section">
+                <h3>Normativa y cabida referencial</h3>
+                {fichaCompleta.normativa.length === 0 && (
+                  <p className="status-msg">Sin zonificación cargada para esta parcela.</p>
+                )}
+                {fichaCompleta.normativa.map((zona) => (
+                  <div key={`${zona.instrumento}-${zona.codigo_zona}`} className="subcard">
+                    <p>
+                      <strong>
+                        {zona.instrumento} · {zona.codigo_zona}
+                      </strong>{" "}
+                      {zona.nombre_zona}
+                    </p>
+                    <p className="meta-line">
+                      Usos: {zona.usos_permitidos.join(", ") || "—"}
+                    </p>
+                    {zona.cabida_referencial && (
+                      <div className="cabida-grid">
+                        <span>
+                          Ocupación máx:{" "}
+                          <strong>
+                            {zona.cabida_referencial.ocupacion_max_m2?.toLocaleString("es-CL") ??
+                              "—"}{" "}
+                            m²
+                          </strong>
+                        </span>
+                        <span>
+                          Edificabilidad máx:{" "}
+                          <strong>
+                            {zona.cabida_referencial.edificabilidad_max_m2?.toLocaleString(
+                              "es-CL"
+                            ) ?? "—"}{" "}
+                            m²
+                          </strong>
+                        </span>
+                        <span>
+                          Altura máx:{" "}
+                          <strong>{zona.cabida_referencial.altura_max_m ?? "—"} m</strong>
+                        </span>
+                      </div>
+                    )}
+                    <ProvenanceMeta data={zona.procedencia} />
+                  </div>
+                ))}
+              </section>
+
+              <section className="detail-section">
+                <h3>Riesgos y amenazas</h3>
+                {fichaCompleta.riesgos.length === 0 && (
+                  <p className="status-msg">Sin amenazas registradas en capas cargadas.</p>
+                )}
+                {fichaCompleta.riesgos.map((r) => (
+                  <div key={r.codigo_evento} className="subcard subcard-risk">
+                    <p>
+                      <strong>{r.tipo}</strong> · Nivel{" "}
+                      <span className="risk-level">{r.nivel}</span> ({r.porcentaje_afectacion ?? "—"}
+                      %)
+                    </p>
+                    {r.descripcion && <p className="meta-line">{r.descripcion}</p>}
+                    <ProvenanceMeta data={r.procedencia} />
+                  </div>
+                ))}
+              </section>
+
+              <section className="detail-section">
+                <h3>Relieve y entorno (DEM)</h3>
+                {fichaCompleta.relieve ? (
+                  <div className="subcard">
+                    <p>
+                      Elevación media: <strong>{fichaCompleta.relieve.elevacion_media_m} m</strong>{" "}
+                      · Pendiente:{" "}
+                      <strong>{fichaCompleta.relieve.pendiente_media_pct ?? "—"} %</strong> ·
+                      Exposición: <strong>{fichaCompleta.relieve.exposicion_aspecto || "—"}</strong>
+                    </p>
+                    {fichaCompleta.relieve.procedencia && (
+                      <ProvenanceMeta data={fichaCompleta.relieve.procedencia} />
+                    )}
+                  </div>
+                ) : (
+                  <p className="status-msg">Sin datos de relieve cargados.</p>
+                )}
+              </section>
+
+              <p className="disclaimer">{fichaCompleta.descargo_general}</p>
+            </>
+          )}
         </div>
       )}
     </aside>

@@ -2,11 +2,13 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
 
+import type { LayerVisibility } from "../../types/parcela";
 import type { MapUrlState } from "./urlState";
 
 interface TerritorioMapProps {
   initialView: MapUrlState;
   selectedRol: string | null;
+  visibleLayers: LayerVisibility;
   flyToTarget: { lng: number; lat: number; zoom?: number } | null;
   onMoveEnd: (view: { lat: number; lng: number; z: number }) => void;
   onSelectPoint: (lat: number, lng: number) => void;
@@ -17,6 +19,7 @@ const TILES_BASE = (import.meta.env.VITE_TILES_BASE as string | undefined) ?? "/
 export function TerritorioMap({
   initialView,
   selectedRol,
+  visibleLayers,
   flyToTarget,
   onMoveEnd,
   onSelectPoint,
@@ -51,12 +54,75 @@ export function TerritorioMap({
             minzoom: 10,
             maxzoom: 20,
           },
+          fiscal: {
+            type: "vector",
+            tiles: [`${window.location.origin}${TILES_BASE}/terreno_fiscal/{z}/{x}/{y}`],
+            minzoom: 10,
+            maxzoom: 20,
+          },
+          normativa: {
+            type: "vector",
+            tiles: [`${window.location.origin}${TILES_BASE}/capa_normativa/{z}/{x}/{y}`],
+            minzoom: 10,
+            maxzoom: 20,
+          },
+          riesgo: {
+            type: "vector",
+            tiles: [`${window.location.origin}${TILES_BASE}/capa_riesgo/{z}/{x}/{y}`],
+            minzoom: 10,
+            maxzoom: 20,
+          },
         },
         layers: [
           {
             id: "osm-base",
             type: "raster",
             source: "osm",
+          },
+          {
+            id: "normativa-fill",
+            type: "fill",
+            source: "normativa",
+            "source-layer": "capa_normativa",
+            layout: { visibility: visibleLayers.normativa ? "visible" : "none" },
+            paint: {
+              "fill-color": "#8b5cf6",
+              "fill-opacity": 0.16,
+            },
+          },
+          {
+            id: "normativa-outline",
+            type: "line",
+            source: "normativa",
+            "source-layer": "capa_normativa",
+            layout: { visibility: visibleLayers.normativa ? "visible" : "none" },
+            paint: {
+              "line-color": "#6d28d9",
+              "line-width": 1.2,
+              "line-dasharray": [2, 2],
+            },
+          },
+          {
+            id: "fiscal-fill",
+            type: "fill",
+            source: "fiscal",
+            "source-layer": "terreno_fiscal",
+            layout: { visibility: visibleLayers.fiscal ? "visible" : "none" },
+            paint: {
+              "fill-color": "#10b981",
+              "fill-opacity": 0.25,
+            },
+          },
+          {
+            id: "riesgo-fill",
+            type: "fill",
+            source: "riesgo",
+            "source-layer": "capa_riesgo",
+            layout: { visibility: visibleLayers.riesgo ? "visible" : "none" },
+            paint: {
+              "fill-color": "#ef4444",
+              "fill-opacity": 0.26,
+            },
           },
           {
             id: "parcelas-fill",
@@ -123,6 +189,22 @@ export function TerritorioMap({
       map.setFilter("parcelas-selected", ["==", ["get", "rol"], selectedRol ?? ""]);
     }
   }, [selectedRol]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    const mapping: Array<[string, boolean]> = [
+      ["fiscal-fill", visibleLayers.fiscal],
+      ["normativa-fill", visibleLayers.normativa],
+      ["normativa-outline", visibleLayers.normativa],
+      ["riesgo-fill", visibleLayers.riesgo],
+    ];
+    for (const [layerId, isVisible] of mapping) {
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, "visibility", isVisible ? "visible" : "none");
+      }
+    }
+  }, [visibleLayers]);
 
   useEffect(() => {
     const map = mapRef.current;
